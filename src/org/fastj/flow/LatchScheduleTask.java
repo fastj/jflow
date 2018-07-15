@@ -6,23 +6,27 @@ public class LatchScheduleTask extends FTask {
 	private static final AtomicLong ID = new AtomicLong();
 
 	private TFactory taskFactory;
-	private int emitCount = 0;
 	private volatile boolean end = false;
 	Latch latch;
 
 	public LatchScheduleTask(Flow flow, int latch, TFactory tf) {
-		super(flow, "ScheduleTask" + ID.incrementAndGet());
+		super(flow, "LSTask" + ID.incrementAndGet());
 		this.emiter = new InnerEmiter();
 		this.latch = Latch.of(latch, new Runnable() {
 			public void run() {
-				emitTasks();
+				emitTasks(1);
 			}
 		});
 		this.taskFactory = tf;
-		emitTasks();
+		emitTasks(latch);
 	}
 
-	private void emitTasks() {
+	private void emitTasks(int count) {
+
+		if (end) {
+			return;
+		}
+
 		Flow flow = flow();
 
 		// flow finished
@@ -31,15 +35,16 @@ public class LatchScheduleTask extends FTask {
 			return;
 		}
 
-		FTask t = taskFactory.task(flow);
-		if (t != null) {
-			emitCount++;
-			t.emiter = latch;
-			flow.add(t);
-		} else {
-			end = true;
+		while (!end && count-- > 0) {
+			FTask t = taskFactory.task(flow);
+			if (t != null) {
+				t.emiter = latch;
+				flow.add(t);
+			} else {
+				end = true;
+			}
 		}
-		
+
 		Flow.schedule(() -> flow.loop());
 	}
 

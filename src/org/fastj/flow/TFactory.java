@@ -11,12 +11,14 @@ public abstract class TFactory {
 
 		Runnable r = task();
 
+		if (r == null) {
+			return null;
+		}
+
 		return new FTask(flow, emiter) {
 			public void run() {
 				try {
-					if (r != null) {
-						r.run();
-					}
+					r.run();
 					done();
 				} catch (Throwable e) {
 					error(e);

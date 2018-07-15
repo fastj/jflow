@@ -175,7 +175,7 @@ public final class Rx {
 
 	public static void schedule(int total, int cpl, int interval, TFactory tf, Callback callback, int timeout) {
 		Flow f = Flow.get();
-		f.add(new SchedulerTask(f, total, cpl, interval, tf));
+		f.add(new ScheduleTask(f, total, cpl, interval, tf));
 		int tm = (total / cpl + 1) * interval + 15000;
 		tm = tm > timeout && timeout != 0 ? tm : timeout;
 		f.sync(callback, tm);
@@ -195,7 +195,7 @@ public final class Rx {
 
 	public static void asyncSchedule(int total, int cpl, int interval, TFactory tf, Callback callback, int timeout) {
 		Flow f = Flow.get();
-		f.add(new SchedulerTask(f, total, cpl, interval, tf));
+		f.add(new ScheduleTask(f, total, cpl, interval, tf));
 		int tm = (total / cpl + 1) * interval + 15000;
 		tm = tm > timeout && timeout != 0 ? tm : timeout;
 		f.async(callback, tm);

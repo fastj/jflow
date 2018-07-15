@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SchedulerTask extends FTask {
+public class ScheduleTask extends FTask {
 	private static final AtomicLong ID = new AtomicLong();
 	private int total;
 	private int countPerLoop;
@@ -14,8 +14,8 @@ public class SchedulerTask extends FTask {
 	private int emitCount = 0;
 	private volatile boolean end = false;
 
-	public SchedulerTask(Flow flow, int total, int cpl, int interval, TFactory tf) {
-		super(flow, "ScheduleTask" + ID.incrementAndGet());
+	public ScheduleTask(Flow flow, int total, int cpl, int interval, TFactory tf) {
+		super(flow, "STask" + ID.incrementAndGet());
 		this.emiter = new InnerEmiter();
 		this.countPerLoop = cpl;
 		this.total = total;
