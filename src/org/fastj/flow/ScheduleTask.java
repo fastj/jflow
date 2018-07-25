@@ -41,7 +41,7 @@ public class ScheduleTask extends FTask {
 			emitCount++;
 			flow.add(taskFactory.task(flow));
 		}
-		Flow.schedule(() -> flow.loop());
+		flow.loop();
 	}
 
 	@Override

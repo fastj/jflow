@@ -180,13 +180,13 @@ public final class Rx {
 		tm = tm > timeout && timeout != 0 ? tm : timeout;
 		f.sync(callback, tm);
 	}
-	
+
 	public static void schedule(int latch, TFactory tf, Callback callback, int timeout) {
 		Flow f = Flow.get();
 		f.add(new LatchScheduleTask(f, latch, tf));
 		f.sync(callback, timeout);
 	}
-	
+
 	public static void asyncSchedule(int latch, TFactory tf, Callback callback, int timeout) {
 		Flow f = Flow.get();
 		f.add(new LatchScheduleTask(f, latch, tf));

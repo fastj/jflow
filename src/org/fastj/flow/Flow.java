@@ -23,15 +23,15 @@ public class Flow {
 	// 180 seconds
 	public static int TIMEOUT = 180000;
 
+	public static final int COMPUTE_THREAD = computeThread();
+
 	private static final ExecutorService IO_POOL = Executors.newCachedThreadPool(new ThFactory("jflow.task.worker", false));
 
-	private static final ExecutorService SCHEDULE_POOL = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
-			Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
-			new ThFactory("jflow.schedule.worker", true, 5));
+	private static final ExecutorService SCHEDULE_POOL = new ThreadPoolExecutor(2, 2, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+			new ThFactory("jflow.schedule.worker", true, 6));
 
-	private static final ExecutorService COMPUTE_POOL = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
-			Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
-			new ThFactory("jflow.compute.worker", true));
+	private static final ExecutorService COMPUTE_POOL = new ThreadPoolExecutor(COMPUTE_THREAD, COMPUTE_THREAD, 60L, TimeUnit.SECONDS,
+			new LinkedBlockingQueue<Runnable>(), new ThFactory("jflow.compute.worker", true, 9));
 
 	private static final Object NOTIFIER = new Object();
 
@@ -90,7 +90,7 @@ public class Flow {
 		this.status.compareAndSet(FTask.INIT, FTask.STARTED);
 		this.timeout = timeout <= 0 ? Integer.MAX_VALUE : timeout;
 		this.notifyCnt.incrementAndGet();
-		long end = System.currentTimeMillis() + timeout;
+		long end = System.currentTimeMillis() + this.timeout;
 		this.callback = cb == null ? Callback.DEFAULT : cb;
 
 		// nothing
@@ -452,6 +452,14 @@ public class Flow {
 				error(e);
 			}
 		}
+	}
+
+	static int computeThread() {
+		String prop = System.getProperty("rxflow.compute.thread");
+		int cpu = Runtime.getRuntime().availableProcessors();
+		int ccpu = cpu > 8 ? cpu - 4 : cpu <= 2 ? cpu : cpu - 1;
+		int set = prop == null ? 0 : Integer.valueOf(prop);
+		return set > 0 && set <= cpu ? set : ccpu;
 	}
 
 	void innercheck() {

@@ -45,7 +45,7 @@ public class LatchScheduleTask extends FTask {
 			}
 		}
 
-		Flow.schedule(() -> flow.loop());
+		flow.loop();
 	}
 
 	@Override
